@@ -1,0 +1,106 @@
+﻿@model List<AmarTools.Bankcheck.Models.PrintedCheque>
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="ck-page-header">
+    <div class="container-fluid px-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="ck-page-icon"><i class="fas fa-tachometer-alt"></i></div>
+            <div>
+                <h1 class="ck-page-title">Admin Dashboard</h1>
+                <p class="ck-page-subtitle">Overview of cheque printing activity</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-4 py-4">
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="ck-stat-card ck-stat-blue">
+                <div class="ck-stat-icon"><i class="fas fa-layer-group"></i></div>
+                <div class="ck-stat-content">
+                    <div class="ck-stat-value">@ViewBag.TemplateCount</div>
+                    <div class="ck-stat-label">Bank Templates</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="ck-stat-card ck-stat-green">
+                <div class="ck-stat-icon"><i class="fas fa-file-pdf"></i></div>
+                <div class="ck-stat-content">
+                    <div class="ck-stat-value">@ViewBag.PrintedTotal</div>
+                    <div class="ck-stat-label">Total Cheques Printed</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="ck-stat-card ck-stat-amber">
+                <div class="ck-stat-icon"><i class="fas fa-calendar-day"></i></div>
+                <div class="ck-stat-content">
+                    <div class="ck-stat-value">@ViewBag.PrintedToday</div>
+                    <div class="ck-stat-label">Printed Today</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-auto">
+            <a asp-controller="Cheque" asp-action="Print" class="ck-btn ck-btn-primary">
+                <i class="fas fa-print me-2"></i>Print New Cheque
+            </a>
+        </div>
+        <div class="col-auto">
+            <a asp-controller="ChequeAdmin" asp-action="CreateTemplate" class="ck-btn ck-btn-secondary">
+                <i class="fas fa-plus me-2"></i>Add Bank Template
+            </a>
+        </div>
+        <div class="col-auto">
+            <a asp-controller="ChequeAdmin" asp-action="History" class="ck-btn ck-btn-ghost">
+                <i class="fas fa-history me-2"></i>Full History
+            </a>
+        </div>
+    </div>
+
+    <div class="ck-card">
+        <div class="ck-card-header">
+            <i class="fas fa-clock me-2"></i>Recent Cheques
+        </div>
+        <div class="ck-card-body p-0">
+            <div class="ck-table-wrapper">
+                <table class="ck-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Payee</th>
+                            <th>Bank</th>
+                            <th>Amount</th>
+                            <th>Cheque Date</th>
+                            <th>Printed At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr><td colspan="6" class="text-center py-4 text-muted">No cheques printed yet.</td></tr>
+                        }
+                        @foreach (var p in Model)
+                        {
+                            <tr>
+                                <td><span class="ck-badge">@p.Id</span></td>
+                                <td><strong>@p.PayeeName</strong></td>
+                                <td>@p.ChequeTemplate?.BankName</td>
+                                <td class="fw-semibold text-success">BDT @p.Amount.ToString("N2")</td>
+                                <td>@p.ChequeDate.ToString("dd/MM/yyyy")</td>
+                                <td class="text-muted small">@p.PrintedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] – AmarTools BankCheque</title>
+    
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    
+    <!-- Your Custom CSS (with cache busting) -->
+    <link rel="stylesheet" href="~/css/cheque.css" asp-append-version="true" />
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark ck-navbar">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand ck-brand" asp-controller="Cheque" asp-action="Print">
+                <span class="ck-logo-icon"><i class="fas fa-money-check-alt"></i></span>
+                <span class="ck-brand-text">Amartools <span class="ck-brand-accent">BankCheque</span></span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Cheque" asp-action="Print">
+                            <i class="fas fa-print me-1"></i> Print Cheque
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="ChequeAdmin" asp-action="Index">
+                            <i class="fas fa-tachometer-alt me-1"></i> Admin
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="ChequeAdmin" asp-action="Templates">
+                            <i class="fas fa-layer-group me-1"></i> Templates
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="ChequeAdmin" asp-action="History">
+                            <i class="fas fa-history me-1"></i> History
+                        </a>
+                    </li>
+                </ul>
+                <span class="navbar-text ck-nav-info">
+                    <i class="fas fa-circle text-success me-1" style="font-size:8px;vertical-align:middle;"></i>
+                    System Online
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="ck-main-wrapper">
+        @if (TempData["Success"] != null)
+        {
+            <div class="container-fluid px-4 pt-3">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        }
+        @RenderBody()
+    </div>
+
+    <footer class="ck-footer">
+        <div class="container-fluid px-4">
+            <span>&copy; @DateTime.Now.Year Amartools BankCheque — Professional Cheque Management</span>
+        </div>
+    </footer>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/cheque-layout-editor.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,99 @@
+﻿@model List<AmarTools.Bankcheck.Models.PrintedCheque>
+@{
+    ViewData["Title"] = "Print History";
+    int total = (int)ViewBag.Total;
+    int page = (int)ViewBag.Page;
+    int ps = (int)ViewBag.PageSize;
+    int pages = (int)Math.Ceiling((double)total / ps);
+}
+
+<div class="ck-page-header">
+    <div class="container-fluid px-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="ck-page-icon"><i class="fas fa-history"></i></div>
+            <div>
+                <h1 class="ck-page-title">Print History</h1>
+                <p class="ck-page-subtitle">Full audit log of all printed cheques (@total records)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-4 py-4">
+
+    <form method="get" class="d-flex gap-3 mb-4 align-items-center">
+        <input type="text" name="search" value="@ViewBag.Search"
+               class="ck-input" style="max-width:320px"
+               placeholder="Search payee or cheque number..." />
+        <button class="ck-btn ck-btn-primary">
+            <i class="fas fa-search me-1"></i>Search
+        </button>
+        @if (!string.IsNullOrEmpty(ViewBag.Search as string))
+        {
+            <a asp-action="History" class="ck-btn ck-btn-ghost">
+                <i class="fas fa-times me-1"></i>Clear
+            </a>
+        }
+        <span class="text-muted small ms-auto">Showing @Model.Count of @total</span>
+    </form>
+
+    <div class="ck-card">
+        <div class="ck-card-body p-0">
+            <div class="ck-table-wrapper">
+                <table class="ck-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Payee</th>
+                            <th>Bank</th>
+                            <th>Amount</th>
+                            <th>In Words</th>
+                            <th>Cheque Date</th>
+                            <th>Cheque No</th>
+                            <th>Memo</th>
+                            <th>Printed At</th>
+                            <th>By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="10" class="text-center py-5 text-muted">
+                                    <i class="fas fa-inbox" style="font-size:2rem;opacity:.3;"></i>
+                                    <p class="mt-2">No records found.</p>
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var p in Model)
+                        {
+                            <tr>
+                                <td><span class="ck-badge">@p.Id</span></td>
+                                <td><strong>@p.PayeeName</strong></td>
+                                <td>@p.ChequeTemplate?.BankName</td>
+                                <td class="text-success fw-semibold" style="white-space:nowrap">BDT @p.Amount.ToString("N2")</td>
+                                <td class="text-muted small" style="max-width:220px;white-space:normal">@p.AmountInWords</td>
+                                <td style="white-space:nowrap">@p.ChequeDate.ToString("dd/MM/yyyy")</td>
+                                <td class="text-muted">@p.ChequeNumber</td>
+                                <td class="text-muted small">@p.MemoNote</td>
+                                <td class="text-muted small" style="white-space:nowrap">@p.PrintedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="text-muted small">@p.PrintedBy</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @if (pages > 1)
+    {
+        <div class="d-flex gap-2 mt-3 justify-content-center flex-wrap">
+            @for (int i = 1; i <= pages; i++)
+            {
+                <a asp-action="History" asp-route-page="@i" asp-route-search="@ViewBag.Search"
+                   class="ck-btn @(i == page ? "ck-btn-primary" : "ck-btn-ghost") ck-btn-sm">@i</a>
+            }
+        </div>
+    }
+</div>

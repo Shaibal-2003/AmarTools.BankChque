@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "Cheque Generated";
+}
+
+<div class="ck-success-wrapper">
+    <div class="ck-success-card">
+        <div class="ck-success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h2 class="ck-success-title">Cheque Generated!</h2>
+        <p class="ck-success-sub">Your cheque PDF has been downloaded successfully.</p>
+
+        <div class="ck-success-details">
+            <div class="ck-success-row">
+                <span class="ck-success-lbl">Payee</span>
+                <span class="ck-success-val">@ViewBag.Payee</span>
+            </div>
+            <div class="ck-success-row">
+                <span class="ck-success-lbl">Amount</span>
+                <span class="ck-success-val">BDT @ViewBag.Amount</span>
+            </div>
+            <div class="ck-success-row">
+                <span class="ck-success-lbl">Date</span>
+                <span class="ck-success-val">@ViewBag.Date</span>
+            </div>
+        </div>
+
+        <div class="d-flex gap-3 justify-content-center mt-4">
+            <a asp-controller="Cheque" asp-action="Print" class="ck-btn ck-btn-primary">
+                <i class="fas fa-plus me-2"></i>Print Another
+            </a>
+            <a asp-controller="ChequeAdmin" asp-action="History" class="ck-btn ck-btn-ghost">
+                <i class="fas fa-history me-2"></i>View History
+            </a>
+        </div>
+    </div>
+</div>

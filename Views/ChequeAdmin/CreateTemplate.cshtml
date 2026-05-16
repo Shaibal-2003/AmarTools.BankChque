@@ -1,0 +1,81 @@
+﻿@model AmarTools.Bankcheck.Models.ChequeTemplate
+@{
+    ViewData["Title"] = "Add Bank Template";
+}
+
+<div class="ck-page-header">
+    <div class="container-fluid px-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="ck-page-icon"><i class="fas fa-plus"></i></div>
+            <div>
+                <h1 class="ck-page-title">Add Bank Template</h1>
+                <p class="ck-page-subtitle">Create a new bank cheque template</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-4 py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="ck-card">
+                <div class="ck-card-header"><i class="fas fa-university me-2"></i>Template Details</div>
+                <div class="ck-card-body">
+                    <form method="post" asp-action="CreateTemplate" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+
+                        <div class="ck-form-group">
+                            <label class="ck-label">Bank Name</label>
+                            <input type="text" name="BankName" class="ck-input" placeholder="e.g. Dutch Bangla Bank" required maxlength="100" />
+                        </div>
+
+                        <div class="ck-form-group">
+                            <label class="ck-label">Account Number</label>
+                            <input type="text" name="AccountNumber" class="ck-input" placeholder="e.g. 1234567890" maxlength="100" />
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="ck-form-group mb-0">
+                                    <label class="ck-label">Page Width (pt)</label>
+                                    <input type="number" name="PageWidth" value="842" class="ck-input" step="1" />
+                                    <small class="text-muted">A4 landscape = 842pt</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="ck-form-group mb-0">
+                                    <label class="ck-label">Page Height (pt)</label>
+                                    <input type="number" name="PageHeight" value="300" class="ck-input" step="1" />
+                                    <small class="text-muted">Cheque leaf height</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ck-form-group mt-3">
+                            <label class="ck-label">Cheque Leaf Background Image</label>
+                            <input type="file" name="chequeImage" class="ck-input" accept="image/*" />
+                            <small class="text-muted">Upload a scan of the blank cheque leaf (PNG/JPG)</small>
+                        </div>
+
+                        <div class="ck-form-group">
+                            <label class="ck-label">Bank Logo</label>
+                            <input type="file" name="logo" class="ck-input" accept="image/*" />
+                        </div>
+
+                        <div class="form-check ck-check mb-4">
+                            <input class="form-check-input" type="checkbox" name="IsActive" value="true" id="isActive" checked />
+                            <label class="form-check-label" for="isActive">Active (visible in print form)</label>
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="ck-btn ck-btn-primary flex-fill">
+                                <i class="fas fa-save me-2"></i>Create Template
+                            </button>
+                            <a asp-action="Templates" class="ck-btn ck-btn-ghost">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

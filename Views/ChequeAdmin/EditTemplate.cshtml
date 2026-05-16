@@ -1,0 +1,103 @@
+﻿@model AmarTools.Bankcheck.Models.ChequeTemplate
+@{
+    ViewData["Title"] = $"Edit Layout - {Model.BankName}";
+}
+
+<div class="ck-page-header">
+    <div class="container-fluid px-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="ck-page-icon"><i class="fas fa-edit"></i></div>
+            <div>
+                <h1 class="ck-page-title">Edit Layout — @Model.BankName</h1>
+                <p class="ck-page-subtitle">Drag fields to correct position • Date field is at top-right</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-4 py-4 text-center">
+    <div id="cheque-preview"
+         style="position:relative; width:@Model.PageWidth px; height:@Model.PageHeight px;
+        border:5px solid #333; margin:0 auto; background:url('@(Model.ChequeImagePath ?? "")') no-repeat center/contain;
+        background-size:contain; background-color:#f8f9fa; box-shadow:0 10px 40px rgba(0,0,0,0.25);">
+
+        @foreach (var item in Model.Layouts.OrderBy(l => l.FieldName))
+        {
+            <div class="layout-field draggable" data-id="@item.Id"
+                 style="position:absolute; left:@item.X px; top:@item.Y px; font-size:@item.FontSize px;
+                border:2px dashed #e74c3c; padding:5px 10px; background:rgba(255,255,255,0.9);
+                cursor:move; font-family:Arial; font-weight:bold; color:#2c3e50; border-radius:4px;">
+                @item.FieldName
+            </div>
+        }
+    </div>
+
+    <div class="mt-4">
+        <button onclick="saveAllLayouts()" class="ck-btn ck-btn-primary btn-lg">
+            <i class="fas fa-save me-2"></i>Save All Layout Changes
+        </button>
+        <a asp-action="Templates" class="ck-btn ck-btn-ghost ms-3">Back to Templates</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.draggable').forEach(field => {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+            field.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+
+                document.onmouseup = () => {
+                    document.onmouseup = document.onmousemove = null;
+                };
+
+                document.onmousemove = (e) => {
+                    e.preventDefault();
+                    pos1 = pos3 - e.clientX;
+                    pos2 = pos4 - e.clientY;
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+
+                    field.style.top = (field.offsetTop - pos2) + "px";
+                    field.style.left = (field.offsetLeft - pos1) + "px";
+                };
+            });
+        });
+
+        async function saveAllLayouts() {
+            const fields = document.querySelectorAll('.layout-field');
+            let successCount = 0;
+
+            for (let el of fields) {
+                const payload = {
+                    id: parseInt(el.dataset.id),
+                    x: parseFloat(el.style.left) || 0,
+                    y: parseFloat(el.style.top) || 0,
+                    fontSize: parseFloat(el.style.fontSize) || 10
+                };
+
+                try {
+                    const res = await fetch('/ChequeAdmin/SaveLayout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (res.ok) successCount++;
+                } catch (err) {
+                    console.error('Save failed for field', err);
+                }
+            }
+
+            if (successCount > 0) {
+                alert(`✅ ${successCount} layout positions saved successfully!`);
+                location.reload();
+            } else {
+                alert("❌ Failed to save layouts. Please try again.");
+            }
+        }
+    </script>
+}

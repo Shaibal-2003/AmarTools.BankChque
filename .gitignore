@@ -1,0 +1,17 @@
+# Visual Studio files
+.vs/
+bin/
+obj/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node modules (if using JS)
+node_modules/
+
+# Env files
+.env

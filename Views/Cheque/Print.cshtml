@@ -1,0 +1,255 @@
+﻿@model object
+@{
+    ViewData["Title"] = "Print Cheque";
+    var templates = ViewBag.Templates as List<AmarTools.Bankcheck.Models.ChequeTemplate> ?? new();
+}
+
+<div class="ck-page-header">
+    <div class="container-fluid px-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="ck-page-icon"><i class="fas fa-print"></i></div>
+            <div>
+                <h1 class="ck-page-title">Print Cheque</h1>
+                <p class="ck-page-subtitle">Fill in the details below to generate a cheque PDF</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-4 py-4">
+    <div class="row g-4">
+
+        <!-- Left Column: Cheque Details Form -->
+        <div class="col-lg-6">
+            <div class="ck-card">
+                <div class="ck-card-header">
+                    <i class="fas fa-edit me-2"></i>Cheque Details
+                </div>
+                <div class="ck-card-body">
+                    <form method="post" asp-controller="Cheque" asp-action="Print" id="chequeForm">
+                        @Html.AntiForgeryToken()
+
+                        <div class="ck-form-group">
+                            <label class="ck-label">Bank Template</label>
+                            <select name="templateId" id="templateId" class="ck-select" required>
+                                <option value="">— Select Bank —</option>
+                                @foreach (var t in templates)
+                                {
+                                    <option value="@t.Id">@t.BankName (@t.AccountNumber)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="ck-form-group">
+                            <label class="ck-label">Pay to the Order of</label>
+                            <input type="text" name="payeeName" id="payeeName"
+                                   class="ck-input" placeholder="Full name or company"
+                                   required maxlength="120" />
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-7">
+                                <div class="ck-form-group mb-0">
+                                    <label class="ck-label">Amount (BDT)</label>
+                                    <input type="number" name="amount" id="amount"
+                                           class="ck-input" placeholder="0.00"
+                                           step="0.01" min="1" required />
+                                </div>
+                            </div>
+                            <div class="col-5">
+                                <div class="ck-form-group mb-0">
+                                    <label class="ck-label">Cheque Date</label>
+                                    <input type="date" name="chequeDate" id="chequeDate"
+                                           class="ck-input"
+                                           value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ck-amount-words" id="amountWords">
+                            Amount in words will appear here...
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="ck-form-group mb-0">
+                                    <label class="ck-label">Cheque Number <span class="text-muted">(optional)</span></label>
+                                    <input type="text" name="chequeNumber" class="ck-input"
+                                           placeholder="e.g. 000123" maxlength="30" />
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="ck-form-group mb-0">
+                                    <label class="ck-label">Memo / Note <span class="text-muted">(optional)</span></label>
+                                    <input type="text" name="memoNote" class="ck-input"
+                                           placeholder="Reference note" maxlength="100" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 d-flex gap-3">
+                            <button type="submit" class="ck-btn ck-btn-primary flex-fill">
+                                <i class="fas fa-file-pdf me-2"></i>Generate & Download PDF
+                            </button>
+                            <button type="reset" class="ck-btn ck-btn-ghost">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                        </div>
+
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger mt-3">
+                                @foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <div><i class="fas fa-times-circle me-1"></i>@err.ErrorMessage</div>
+                                }
+                            </div>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Live Preview + Stats -->
+        <div class="col-lg-6">
+            <div class="ck-card">
+                <div class="ck-card-header">
+                    <i class="fas fa-eye me-2"></i>Live Preview
+                    <span class="ck-badge ms-auto">Auto-updates</span>
+                </div>
+                <div class="ck-card-body p-0">
+                    <div class="ck-cheque-preview" id="chequePreview">
+                        <div class="ck-preview-placeholder" id="previewPlaceholder">
+                            <i class="fas fa-university"></i>
+                            <p>Select a bank template to see preview</p>
+                        </div>
+                        <div class="ck-preview-content" id="previewContent" style="display:none;">
+                            <div class="ck-preview-bank" id="previewBank">City Bank</div>
+                            <div class="ck-preview-row">
+                                <span class="ck-preview-label">Pay to</span>
+                                <span class="ck-preview-value" id="previewPayee">—</span>
+                            </div>
+                            <div class="ck-preview-row">
+                                <span class="ck-preview-label">Amount</span>
+                                <span class="ck-preview-value ck-preview-amount" id="previewAmount">BDT 0.00</span>
+                            </div>
+                            <div class="ck-preview-words" id="previewWords">—</div>
+                            <div class="ck-preview-row mt-3">
+                                <span class="ck-preview-label">Date</span>
+                                <span class="ck-preview-value" id="previewDate">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fixed Mini Stats -->
+            <div class="row g-3 mt-3">
+                <div class="col-4">
+                    <div class="ck-stat-mini">
+                        <div class="ck-stat-mini-icon text-primary"><i class="fas fa-layer-group"></i></div>
+                        <div class="ck-stat-mini-val">@(ViewBag.Templates?.Count ?? 0)</div>
+                        <div class="ck-stat-mini-lbl">Templates</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="ck-stat-mini">
+                        <div class="ck-stat-mini-icon text-success"><i class="fas fa-file-pdf"></i></div>
+                        <div class="ck-stat-mini-val">@(ViewBag.PrintedTotal ?? 0)</div>
+                        <div class="ck-stat-mini-lbl">Printed</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="ck-stat-mini">
+                        <div class="ck-stat-mini-icon text-warning"><i class="fas fa-calendar-day"></i></div>
+                        <div class="ck-stat-mini-val">@(ViewBag.PrintedToday ?? 0)</div>
+                        <div class="ck-stat-mini-lbl">Today</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Get all required elements
+        const templateSelect = document.getElementById('templateId');
+        const payeeEl = document.getElementById('payeeName');
+        const amountEl = document.getElementById('amount');
+        const dateEl = document.getElementById('chequeDate');
+
+        // Update text fields in live preview
+        function updatePreview() {
+            document.getElementById('previewPayee').textContent = payeeEl.value.trim() || '—';
+
+            const amountVal = amountEl.value ? parseFloat(amountEl.value) : 0;
+            document.getElementById('previewAmount').textContent =
+                amountVal ? 'BDT ' + amountVal.toLocaleString('en-BD', { minimumFractionDigits: 2 }) : 'BDT 0.00';
+
+            const d = new Date(dateEl.value);
+            document.getElementById('previewDate').textContent =
+                isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-GB');
+        }
+
+        // Update bank name when template is selected
+        function loadPreview() {
+            if (!templateSelect.value) {
+                document.getElementById('previewPlaceholder').style.display = 'block';
+                document.getElementById('previewContent').style.display = 'none';
+                return;
+            }
+
+            const selectedOption = templateSelect.options[templateSelect.selectedIndex];
+            document.getElementById('previewPlaceholder').style.display = 'none';
+            document.getElementById('previewContent').style.display = 'block';
+            document.getElementById('previewBank').textContent = selectedOption ? selectedOption.text : 'Bank';
+        }
+
+        // Fetch amount in words
+        function fetchAmountWords(val) {
+            if (!val || parseFloat(val) <= 0) {
+                document.getElementById('amountWords').textContent = 'Amount in words will appear here...';
+                document.getElementById('previewWords').textContent = '—';
+                return;
+            }
+
+            fetch('/Cheque/AmountWords?amount=' + val)
+                .then(r => r.json())
+                .then(d => {
+                    document.getElementById('amountWords').textContent = d.words;
+                    document.getElementById('previewWords').textContent = d.words;
+                })
+                .catch(() => {
+                    document.getElementById('amountWords').textContent = 'Error converting amount';
+                });
+        }
+
+        // Initialize everything
+        function initializeLivePreview() {
+            // Event listeners
+            templateSelect.addEventListener('change', loadPreview);
+            payeeEl.addEventListener('input', updatePreview);
+            amountEl.addEventListener('input', updatePreview);
+            dateEl.addEventListener('change', updatePreview);
+
+            // Trigger amount words when amount changes
+            amountEl.addEventListener('input', function() {
+                fetchAmountWords(this.value);
+            });
+
+            // Initialize preview on page load (Important for refresh)
+            updatePreview();
+            loadPreview();
+
+            // If amount has default value, load words
+            if (amountEl.value) {
+                fetchAmountWords(amountEl.value);
+            }
+        }
+
+        // Run when page is loaded
+        window.addEventListener('load', initializeLivePreview);
+    </script>
+}
